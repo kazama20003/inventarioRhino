@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -23,7 +22,7 @@ import {
     Building2,
     ChevronLeft,
     ChevronRight,
-    ChevronDown, // Ícono para indicar subopciones
+    ChevronDown, 
 } from 'lucide-react'
 
 const sidebarItems = [
@@ -40,21 +39,12 @@ const sidebarItems = [
     { name: 'Configuración', href: '/settings', icon: Settings },
 ]
 
-interface SidebarProps {
-    onExpand: (expanded: boolean) => void;
-}
-
-export default function Sidebar({ onExpand }: SidebarProps) {
+export default function Sidebar() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
     const [openSubItems, setOpenSubItems] = useState<string | null>(null)
     const pathname = usePathname()
     const sidebarRef = useRef<HTMLDivElement>(null)
-
-    // Sincroniza el estado de expansión con el layout.
-    useEffect(() => {
-        onExpand(isSidebarExpanded)
-    }, [isSidebarExpanded, onExpand])
 
     // Manejo del clic fuera del sidebar
     useEffect(() => {
@@ -71,29 +61,18 @@ export default function Sidebar({ onExpand }: SidebarProps) {
     }, []);
 
     return (
-        <>
-            <Button
-                variant="outline"
-                size="icon"
-                className={cn(
-                    "fixed top-4 left-4 z-50 lg:hidden transition-opacity",
-                    isSidebarOpen && "opacity-0 pointer-events-none"
-                )}
-                onClick={() => setIsSidebarOpen(true)}
-            >
-                <Menu className="h-4 w-4" />
-                <span className="sr-only">Open Sidebar</span>
-            </Button>
-
+        <div className="flex h-screen">
+            {/* Sidebar */}
             <aside
                 ref={sidebarRef}
                 className={cn(
-                    "fixed inset-y-0 left-0 z-40 bg-background shadow-lg transform transition-all duration-200 ease-in-out lg:translate-x-0",
-                    isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+                    "bg-background shadow-lg transform transition-all duration-200 ease-in-out",
+                    isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
                     isSidebarExpanded ? "w-64" : "w-20"
                 )}
             >
                 <div className="flex flex-col h-full">
+                    {/* Header del sidebar */}
                     <div className="flex items-center justify-between h-20 px-4 border-b">
                         <div className="flex items-center">
                             <Building2 className="h-8 w-8 text-primary mr-2" />
@@ -129,6 +108,7 @@ export default function Sidebar({ onExpand }: SidebarProps) {
                         </Button>
                     </div>
 
+                    {/* Contenido del sidebar */}
                     <nav className="flex-1 overflow-y-auto py-4 px-3">
                         <TooltipProvider>
                             {sidebarItems.map((item) => (
@@ -186,6 +166,6 @@ export default function Sidebar({ onExpand }: SidebarProps) {
                     </nav>
                 </div>
             </aside>
-        </>
+        </div>
     )
 }
