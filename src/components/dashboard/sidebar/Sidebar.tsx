@@ -1,4 +1,5 @@
 'use client'
+
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -46,7 +47,6 @@ export default function Sidebar() {
     const pathname = usePathname()
     const sidebarRef = useRef<HTMLDivElement>(null)
 
-    // Manejo del clic fuera del sidebar
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -60,15 +60,27 @@ export default function Sidebar() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!isSidebarExpanded) {
+            setOpenSubItems(null);
+        }
+    }, [isSidebarExpanded]);
+
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [pathname]);
+
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen overflow-hidden">
             {/* Sidebar */}
             <aside
                 ref={sidebarRef}
                 className={cn(
-                    "bg-background shadow-lg transform transition-all duration-200 ease-in-out",
-                    isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-                    isSidebarExpanded ? "w-64" : "w-20"
+                    "bg-background shadow-lg transform transition-all duration-200 ease-in-out h-full",
+                    "lg:relative lg:translate-x-0",
+                    "fixed inset-y-0 left-0 z-30",
+                    isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+                    isSidebarExpanded ? "lg:w-64" : "lg:w-20"
                 )}
             >
                 <div className="flex flex-col h-full">
@@ -124,7 +136,11 @@ export default function Sidebar() {
                                                         ? "bg-primary/20 text-primary shadow-sm"
                                                         : "text-muted-foreground"
                                                 )}
-                                                onClick={() => item.subItems ? setOpenSubItems(openSubItems === item.name ? null : item.name) : undefined}
+                                                onClick={() => {
+                                                    if (item.subItems) {
+                                                        setOpenSubItems(openSubItems === item.name ? null : item.name);
+                                                    }
+                                                }}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -133,7 +149,7 @@ export default function Sidebar() {
                                                     )}
                                                 </div>
                                                 {item.subItems && (
-                                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${openSubItems === item.name ? 'transform rotate-180' : ''}`} />
+                                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${openSubItems === item.name ? 'rotate-180' : ''}`} />
                                                 )}
                                             </Link>
                                         </TooltipTrigger>
@@ -166,6 +182,26 @@ export default function Sidebar() {
                     </nav>
                 </div>
             </aside>
+
+            {/* Botón de apertura en formato móvil */}
+            {!isSidebarOpen && (
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="lg:hidden fixed top-4 left-4 z-40"
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Open Sidebar</span>
+                </Button>
+            )}
+
+            {/* Contenedor principal */}
+            <div className="flex-1 overflow-auto">
+                <div className="p-4">
+                    
+                </div>
+            </div>
         </div>
     )
 }
